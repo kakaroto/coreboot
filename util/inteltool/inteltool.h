@@ -14,6 +14,9 @@
  * GNU General Public License for more details.
  */
 
+#ifndef INTELTOOL_H
+#define INTELTOOL_H 1
+
 #include <commonlib/helpers.h>
 
 #include <stdint.h>
@@ -139,6 +142,7 @@ static inline uint32_t inl(unsigned port)
 #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_PREM	0x9cc3
 #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP	0x9cc5
 #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA	0xa102
+#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_P2SB	0xa120
 #define PCI_DEVICE_ID_INTEL_CM236		0xa150
 #define PCI_DEVICE_ID_INTEL_82810		0x7120
 #define PCI_DEVICE_ID_INTEL_82810_DC	0x7122
@@ -242,3 +246,5 @@ int print_spi(struct pci_dev *sb);
 int print_gfx(struct pci_dev *gfx);
 int print_ahci(struct pci_dev *ahci);
 void ivybridge_dump_timings(const char *dump_spd_file);
+
+#endif

@@ -25,7 +25,9 @@ PREFIX  ?= /usr/local
 CFLAGS  ?= -O2 -g -Wall -W -I$(top)/src/commonlib/include
 LDFLAGS += -lpci -lz
 
-OBJS = inteltool.o cpu.o gpio.o rootcmplx.o powermgt.o memory.o pcie.o amb.o ivy_memory.o spi.o gfx.o ahci.o
+OBJS = \
+       inteltool.o pcr.o cpu.o gpio.o rootcmplx.o powermgt.o \
+       memory.o pcie.o amb.o ivy_memory.o spi.o gfx.o ahci.o \
 
 OS_ARCH	= $(shell uname)
 ifeq ($(OS_ARCH), Darwin)

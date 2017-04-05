@@ -24,6 +24,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include "inteltool.h"
+#include "pcr.h"
 
 #ifdef __NetBSD__
 #include <machine/sysarch.h>
@@ -404,6 +405,7 @@ int main(int argc, char *argv[])
 #endif
 
 	pacc = pci_alloc();
+	pacc->method = PCI_ACCESS_I386_TYPE1;
 	pci_init(pacc);
 	pci_scan_bus(pacc);
 
@@ -576,6 +578,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Clean up */
+	pcr_cleanup();
 	if (ahci)
 		pci_free_dev(ahci);
 	if (gfx)
