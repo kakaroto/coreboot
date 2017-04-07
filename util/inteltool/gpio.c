@@ -1006,7 +1006,7 @@ int print_gpios(struct pci_dev *sb, int show_all, int show_diffs)
 		size = ARRAY_SIZE(baytrail_score_ssus_gpio_registers);
 		break;
 	case PCI_DEVICE_ID_INTEL_CM236:
-		print_gpio_groups(sb);
+		print_gpio_groups(sb, false);
 		return 0;
 	case PCI_DEVICE_ID_INTEL_82371XX:
 		printf("This southbridge has GPIOs in the PM unit.\n");

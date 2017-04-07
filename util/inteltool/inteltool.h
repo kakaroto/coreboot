@@ -19,6 +19,7 @@
 
 #include <commonlib/helpers.h>
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #if defined(__GLIBC__)
@@ -238,7 +239,7 @@ int print_mchbar(struct pci_dev *nb, struct pci_access *pacc, const char *dump_s
 int print_pmbase(struct pci_dev *sb, struct pci_access *pacc);
 int print_rcba(struct pci_dev *sb);
 int print_gpios(struct pci_dev *sb, int show_all, int show_diffs);
-void print_gpio_groups(struct pci_dev *sb);
+void print_gpio_groups(struct pci_dev *sb, bool devtree_mode);
 int print_epbar(struct pci_dev *nb);
 int print_dmibar(struct pci_dev *nb);
 int print_pciexbar(struct pci_dev *nb);

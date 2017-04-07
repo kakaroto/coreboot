@@ -264,6 +264,7 @@ void print_usage(const char *name)
 	     "   -M | --msrs:                      dump CPU MSRs\n"
 	     "   -A | --ambs:                      dump AMB registers\n"
 	     "   -a | --all:                       dump all known (safe) registers\n"
+	     "   -D | --devtree:                   dump in devicetree format (as far as supported)\n"
 	     "\n");
 	exit(1);
 }
@@ -282,7 +283,7 @@ int main(int argc, char *argv[])
 	int dump_pmbase = 0, dump_epbar = 0, dump_dmibar = 0;
 	int dump_pciexbar = 0, dump_coremsrs = 0, dump_ambs = 0;
 	int dump_spi = 0, dump_gfx = 0, dump_ahci = 0;
-	int show_gpio_diffs = 0;
+	int show_gpio_diffs = 0, devtree_mode = 0;
 
 	static struct option long_options[] = {
 		{"version", 0, 0, 'v'},
@@ -302,10 +303,11 @@ int main(int argc, char *argv[])
 		{"all", 0, 0, 'a'},
 		{"gfx", 0, 0, 'f'},
 		{"ahci", 0, 0, 'R'},
+		{"devtree", 0, 0, 'D'},
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "vh?gGrpmedPMaAsfRS:",
+	while ((opt = getopt_long(argc, argv, "vh?gGrpmedPMaAsfRDS:",
                                   long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'v':
@@ -368,6 +370,9 @@ int main(int argc, char *argv[])
 			break;
 		case 's':
 			dump_spi = 1;
+			break;
+		case 'D':
+			devtree_mode = 1;
 			break;
 		case 'h':
 		case '?':
@@ -517,64 +522,67 @@ int main(int argc, char *argv[])
 	}
 
 	/* Now do the deed */
+	if (!devtree_mode) {
+		if (dump_gpios) {
+			print_gpios(sb, 1, show_gpio_diffs);
+			printf("\n\n");
+		} else if (show_gpio_diffs) {
+			print_gpios(sb, 0, show_gpio_diffs);
+			printf("\n\n");
+		}
 
-	if (dump_gpios) {
-		print_gpios(sb, 1, show_gpio_diffs);
-		printf("\n\n");
-	} else if (show_gpio_diffs) {
-		print_gpios(sb, 0, show_gpio_diffs);
-		printf("\n\n");
-	}
+		if (dump_rcba) {
+			print_rcba(sb);
+			printf("\n\n");
+		}
 
-	if (dump_rcba) {
-		print_rcba(sb);
-		printf("\n\n");
-	}
+		if (dump_pmbase) {
+			print_pmbase(sb, pacc);
+			printf("\n\n");
+		}
 
-	if (dump_pmbase) {
-		print_pmbase(sb, pacc);
-		printf("\n\n");
-	}
+		if (dump_mchbar) {
+			print_mchbar(nb, pacc, dump_spd_file);
+			printf("\n\n");
+		}
 
-	if (dump_mchbar) {
-		print_mchbar(nb, pacc, dump_spd_file);
-		printf("\n\n");
-	}
+		if (dump_epbar) {
+			print_epbar(nb);
+			printf("\n\n");
+		}
 
-	if (dump_epbar) {
-		print_epbar(nb);
-		printf("\n\n");
-	}
+		if (dump_dmibar) {
+			print_dmibar(nb);
+			printf("\n\n");
+		}
 
-	if (dump_dmibar) {
-		print_dmibar(nb);
-		printf("\n\n");
-	}
+		if (dump_pciexbar) {
+			print_pciexbar(nb);
+			printf("\n\n");
+		}
 
-	if (dump_pciexbar) {
-		print_pciexbar(nb);
-		printf("\n\n");
-	}
+		if (dump_coremsrs) {
+			print_intel_core_msrs();
+			printf("\n\n");
+		}
 
-	if (dump_coremsrs) {
-		print_intel_core_msrs();
-		printf("\n\n");
-	}
+		if (dump_ambs) {
+			print_ambs(nb, pacc);
+		}
 
-	if (dump_ambs) {
-		print_ambs(nb, pacc);
-	}
+		if (dump_spi) {
+			print_spi(sb);
+		}
 
-	if (dump_spi) {
-		print_spi(sb);
-	}
+		if (dump_gfx) {
+			print_gfx(gfx);
+		}
 
-	if (dump_gfx) {
-		print_gfx(gfx);
-	}
-
-	if (dump_ahci) {
-		print_ahci(ahci);
+		if (dump_ahci) {
+			print_ahci(ahci);
+		}
+	} else {
+		print_gpio_groups(sb, devtree_mode);
 	}
 
 	/* Clean up */

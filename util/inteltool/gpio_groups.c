@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <assert.h>
 #include <inttypes.h>
 #include "inteltool.h"
@@ -26,7 +27,7 @@
 #define PCR_PORT_SIZE	(64 * KiB)
 
 struct gpio_group {
-	const char *display;
+	const char *display, *name;
 	size_t pad_count;
 	size_t func_count;
 	const char *const *pad_names; /* indexed by 'pad * func_count + func' */
@@ -68,6 +69,7 @@ static const char *const sunrise_group_a_names[] = {
 
 static const struct gpio_group sunrise_group_a = {
 	.display	= "------- GPIO Group GPP_A -------",
+	.name		= "gpp_a",
 	.pad_count	= ARRAY_SIZE(sunrise_group_a_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_a_names,
@@ -102,6 +104,7 @@ static const char *const sunrise_group_b_names[] = {
 
 static const struct gpio_group sunrise_group_b = {
 	.display	= "------- GPIO Group GPP_B -------",
+	.name		= "gpp_b",
 	.pad_count	= ARRAY_SIZE(sunrise_group_b_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_b_names,
@@ -147,6 +150,7 @@ static const char *const sunrise_group_c_names[] = {
 
 static const struct gpio_group sunrise_group_c = {
 	.display	= "------- GPIO Group GPP_C -------",
+	.name		= "gpp_c",
 	.pad_count	= ARRAY_SIZE(sunrise_group_c_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_c_names,
@@ -181,6 +185,7 @@ static const char *const sunrise_group_d_names[] = {
 
 static const struct gpio_group sunrise_group_d = {
 	.display	= "------- GPIO Group GPP_D -------",
+	.name		= "gpp_d",
 	.pad_count	= ARRAY_SIZE(sunrise_group_d_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_d_names,
@@ -204,6 +209,7 @@ static const char *const sunrise_group_e_names[] = {
 
 static const struct gpio_group sunrise_group_e = {
 	.display	= "------- GPIO Group GPP_E -------",
+	.name		= "gpp_e",
 	.pad_count	= ARRAY_SIZE(sunrise_group_e_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_e_names,
@@ -238,6 +244,7 @@ static const char *const sunrise_group_f_names[] = {
 
 static const struct gpio_group sunrise_group_f = {
 	.display	= "------- GPIO Group GPP_F -------",
+	.name		= "gpp_f",
 	.pad_count	= ARRAY_SIZE(sunrise_group_f_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_f_names,
@@ -272,6 +279,7 @@ static const char *const sunrise_group_g_names[] = {
 
 static const struct gpio_group sunrise_group_g = {
 	.display	= "------- GPIO Group GPP_G -------",
+	.name		= "gpp_g",
 	.pad_count	= ARRAY_SIZE(sunrise_group_g_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_g_names,
@@ -306,6 +314,7 @@ static const char *const sunrise_group_h_names[] = {
 
 static const struct gpio_group sunrise_group_h = {
 	.display	= "------- GPIO Group GPP_H -------",
+	.name		= "gpp_h",
 	.pad_count	= ARRAY_SIZE(sunrise_group_h_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_h_names,
@@ -340,6 +349,7 @@ static const char *const sunrise_group_gpd_names[] = {
 
 static const struct gpio_group sunrise_group_gpd = {
 	.display	= "-------- GPIO Group GPD --------",
+	.name		= "gpd",
 	.pad_count	= ARRAY_SIZE(sunrise_group_gpd_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_gpd_names,
@@ -372,6 +382,7 @@ static const char *const sunrise_group_i_names[] = {
 
 static const struct gpio_group sunrise_group_i = {
 	.display	= "------- GPIO Group GPP_I -------",
+	.name		= "gpp_i",
 	.pad_count	= ARRAY_SIZE(sunrise_group_i_names) / 4,
 	.func_count	= 4,
 	.pad_names	= sunrise_group_i_names,
@@ -392,6 +403,100 @@ static const struct gpio_community *const sunrise_communities[] = {
 	&sunrise_community_ab, &sunrise_community_cdefgh,
 	&sunrise_community_gpd, &sunrise_community_i,
 };
+
+static void print_devtree_gpio(const size_t pad,
+			       const uint32_t dw0, const uint32_t dw1)
+{
+	const size_t tx_state	= dw0 >>  0 & 1;
+	const size_t tx_disable	= dw0 >>  8 & 1;
+	const size_t rx_disable	= dw0 >>  9 & 1;
+	const size_t pad_mode	= dw0 >> 10 & 7;
+	const size_t route_nmi	= dw0 >> 17 & 1;
+	const size_t route_smi	= dw0 >> 18 & 1;
+	const size_t route_sci	= dw0 >> 19 & 1;
+	const size_t route_apic	= dw0 >> 20 & 1;
+	const size_t rx_invert	= dw0 >> 23 & 1;
+	const size_t rx_evcfg	= dw0 >> 25 & 3;
+	const size_t rx_raw1	= dw0 >> 28 & 1;
+	const size_t rx_padsel	= dw0 >> 29 & 1;
+	const size_t pad_reset	= dw0 >> 30 & 3;
+	const size_t int_sel	= dw1 >>  0 & 0xff;
+	const size_t term	= dw1 >> 10 & 0x0f;
+
+	printf("\t\t\tgpio %2zd ", pad);
+	if (!pad_mode) {
+		if (!rx_disable) printf("in");
+		if (!tx_disable) printf("out tx%zd", tx_state);
+		printf(" ");
+	} else {
+		printf("native%zd ", pad_mode);
+	}
+
+	if (!pad_mode && !rx_disable) {
+		if (route_nmi) printf("nmi ");
+		if (route_smi) printf("smi ");
+		if (route_sci) printf("sci ");
+		if (route_apic) printf("apic ");
+	}
+	if (pad_mode || !rx_disable) {
+		if (rx_invert) printf("rxinv ");
+	}
+	if (!pad_mode && !rx_disable) {
+		switch (rx_evcfg) {
+			case 0: printf("level "); break;
+			case 1: printf("edge "); break;
+			case 2: printf("drive0 "); break;
+			default: printf("evcfg_reserved "); break;
+		}
+	}
+	if (pad_mode || !rx_disable) {
+		if (rx_raw1) printf("raw1 ");
+	}
+	if (pad_mode) {
+		if (rx_padsel) printf("intpad ");
+	}
+
+	switch (pad_reset) {
+		case 0: printf("rsmrst "); break;
+		case 1: break;
+		case 2: printf("pltrst "); break;
+		default: printf("rstcfg_reserved "); break;
+	}
+
+	if (pad_mode || !rx_disable)
+		printf("intsel:%zd ", int_sel);
+
+	switch (term) {
+		case  0: case 8: case 15: break;
+		case  2: printf("pd5k "); break;
+		case  4: printf("pd20k "); break;
+		case  9: printf("pu1k "); break;
+		case 10: printf("pu5k "); break;
+		case 11: printf("pu2k "); break;
+		case 12: printf("pu20k "); break;
+		case 13: printf("pu667 "); break;
+		default: printf("term_reserved "); break;
+	}
+
+	printf("end\n");
+}
+
+static void print_devtree_group(const uint8_t pid, size_t pad_cfg,
+				const struct gpio_group *const group)
+{
+	size_t p;
+
+	printf("\t\tgpiogroup %s\n", group->name);
+
+	for (p = 0; p < group->pad_count; ++p, pad_cfg += 8) {
+		const uint32_t dw0 = read_pcr32(pid, pad_cfg);
+		const uint32_t dw1 = read_pcr32(pid, pad_cfg + 4);
+
+		print_devtree_gpio(p, dw0, dw1);
+	}
+
+	printf("\t\tend\n");
+}
 
 static const char *decode_pad_mode(const struct gpio_group *const group,
 				   const size_t pad, const uint32_t dw0)
@@ -423,13 +528,15 @@ static void print_gpio_group(const uint8_t pid, size_t pad_cfg,
 	}
 }
 
-static void print_gpio_community(const struct gpio_community *const community)
+static void print_gpio_community(const struct gpio_community *const community,
+				 const bool devtree_mode)
 {
 	size_t group, pad_count;
 	size_t pad_cfg; /* offset in bytes under this communities PCR port */
 
-	printf("%s\n\nPCR Port ID: 0x%06zx\n\n",
-	       community->name, (size_t)community->pcr_port_id << 16);
+	if (!devtree_mode)
+		printf("%s\n\nPCR Port ID: 0x%06zx\n\n",
+		       community->name, (size_t)community->pcr_port_id << 16);
 
 	for (group = 0, pad_count = 0; group < community->group_count; ++group)
 		pad_count += community->groups[group]->pad_count;
@@ -442,13 +549,18 @@ static void print_gpio_community(const struct gpio_community *const community)
 	}
 
 	for (group = 0; group < community->group_count; ++group) {
-		print_gpio_group(community->pcr_port_id,
-				 pad_cfg, community->groups[group]);
+		if (devtree_mode) {
+			print_devtree_group(community->pcr_port_id,
+					    pad_cfg, community->groups[group]);
+		} else {
+			print_gpio_group(community->pcr_port_id,
+					 pad_cfg, community->groups[group]);
+		}
 		pad_cfg += community->groups[group]->pad_count * 8;
 	}
 }
 
-void print_gpio_groups(struct pci_dev *const sb)
+void print_gpio_groups(struct pci_dev *const sb, const bool devtree_mode)
 {
 	size_t community_count;
 	const struct gpio_community *const *communities;
@@ -463,8 +575,9 @@ void print_gpio_groups(struct pci_dev *const sb)
 		return;
 	}
 
-	printf("\n============= GPIOS =============\n\n");
+	if (!devtree_mode)
+		printf("\n============= GPIOS =============\n\n");
 
 	for (; community_count; --community_count)
-		print_gpio_community(*communities++);
+		print_gpio_community(*communities++, devtree_mode);
 }
