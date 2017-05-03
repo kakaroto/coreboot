@@ -53,6 +53,25 @@ static int pciexp_retrain_link(device_t dev, unsigned cap)
 	unsigned try = PCIE_TRAIN_RETRY;
 	u16 lnk;
 
+	/* Implementation note (page 633) in PCIe Specification 3.0 suggests
+	 * polling the Link Training bit in the Link Status register until the
+	 * value returned is 0 before setting the Retrain Link bit to 1.
+	 * This is meant to avoid a race condition when using the
+	 * Retrain Link mechanism.
+	 */
+	while (try--) {
+		lnk = pci_read_config16(dev, cap + PCI_EXP_LNKSTA);
+		if (!(lnk & PCI_EXP_LNKSTA_LT)) {
+			try = PCIE_TRAIN_RETRY;
+			break;
+		}
+		udelay(100);
+	}
+	if (try != PCIE_TRAIN_RETRY) {
+		printk(BIOS_ERR, "%s: Link Retrain timeout\n", dev_path(dev));
+		return -1;
+	}
+
 	/* Start link retraining */
 	lnk = pci_read_config16(dev, cap + PCI_EXP_LNKCTL);
 	lnk |= PCI_EXP_LNKCTL_RL;
