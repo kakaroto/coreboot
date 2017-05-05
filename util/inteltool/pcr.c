@@ -29,10 +29,48 @@ uint32_t read_pcr32(const uint8_t port, const uint16_t offset)
 	return *(const uint32_t *)(sbbar + (port << 16) + offset);
 }
 
+static void print_pcr_port(const uint8_t port)
+{
+	size_t i = 0;
+	uint32_t last_reg = 0;
+	bool last_printed = true;
+
+	printf("PCR port offset: 0x%06zx\n\n", (size_t)port << 16);
+
+	for (i = 0; i < PCR_PORT_SIZE; i += 4) {
+		const uint32_t reg = read_pcr32(port, i);
+		const bool rep = i && last_reg == reg;
+		if (!rep) {
+			if (!last_printed)
+				printf("*\n");
+			printf("0x%04zx: 0x%08"PRIx32"\n", i, reg);
+		}
+
+		last_reg = reg;
+		last_printed = !rep;
+	}
+	if (!last_printed)
+		printf("*\n");
+}
+
+void print_pcr_ports(struct pci_dev *const sb,
+		     const uint8_t *const ports, const size_t count)
+{
+	size_t i;
+
+	pcr_init(sb);
+
+	for (i = 0; i < count; ++i) {
+		printf("\n========== PCR 0x%02x ==========\n\n", ports[i]);
+		print_pcr_port(ports[i]);
+	}
+}
+
 void pcr_init(struct pci_dev *const sb)
 {
 	bool error_exit = false;
 	bool p2sb_revealed = false;
+	size_t i, j, k;
 
 	if (sbbar)
 		return;
@@ -66,11 +104,38 @@ void pcr_init(struct pci_dev *const sb)
 	pci_fill_info(p2sb, PCI_FILL_BASES | PCI_FILL_CLASS);
 
 	const pciaddr_t sbbar_phys = p2sb->base_addr[0] & ~0xfULL;
-	printf("SBREG_BAR = 0x%08"PRIx64" (MEM)\n\n", (uint64_t)sbbar_phys);
+	printf("SBREG_BAR = 0x%08"PRIx64" (MEM)\n", (uint64_t)sbbar_phys);
 	sbbar = map_physical(sbbar_phys, SBBAR_SIZE);
 	if (sbbar == NULL) {
 		perror("Error mapping SBREG_BAR");
 		error_exit = true;
+	}
+
+	printf("P2SB Control = 0x%08"PRIx32"\n", pci_read_long(p2sb, 0xe0));
+
+	k = 0;
+	for (i = 0x80; i < 0xa0; i += 4) {
+		const uint32_t endpoint_post = pci_read_long(p2sb, i);
+		for (j = 0; j < 32; ++j, ++k) {
+			if (endpoint_post & 1 << j)
+				printf("Endpoint 0x%02zx is posted.\n", k);
+		}
+	}
+
+	k = 0;
+	for (i = 0xb0; i < 0xd0; i += 4) {
+		const uint32_t endpoint_mask = pci_read_long(p2sb, i);
+		for (j = 0; j < 32; ++j, ++k) {
+			if (endpoint_mask & 1 << j) {
+				printf("Endpoint 0x%02zx is disabled", k);
+				pci_write_long(p2sb, i,
+					       endpoint_mask & ~(1 << j));
+				if (endpoint_mask == pci_read_long(p2sb, i))
+					printf(" and locked.\n");
+				else
+					printf(".\n");
+			}
+		}
 	}
 
 	if (p2sb_revealed) {

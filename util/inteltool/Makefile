@@ -22,7 +22,7 @@ top ?= $(abspath ../..)
 CC      ?= gcc
 INSTALL ?= /usr/bin/install
 PREFIX  ?= /usr/local
-CFLAGS  ?= -O2 -g -Wall -W -I$(top)/src/commonlib/include
+CFLAGS  ?= -O2 -g -Wall -W -I$(top)/src/commonlib/include -Wextra -pedantic
 LDFLAGS += -lpci -lz
 
 OBJS = \
