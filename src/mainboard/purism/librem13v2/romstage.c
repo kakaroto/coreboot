@@ -35,12 +35,11 @@ void mainboard_memory_init_params(struct romstage_params *params,
 {
 	struct spd_block blk;
 
-	if (params->pei_data->spd_data[0][0][0] != 0) {
-		get_spd_smbus(&blk);
-		memory_params->MemorySpdDataLen = blk.len;
-		memory_params->MemorySpdPtr00 = (u32)blk.spd_array[0];
-		memory_params->MemorySpdPtr10 = memory_params->MemorySpdPtr00;
-	}
+	get_spd_smbus(&blk);
+	memory_params->MemorySpdDataLen = blk.len;
+	memory_params->MemorySpdPtr00 = (u32)blk.spd_array[0];
+	//memory_params->MemorySpdPtr10 = memory_params->MemorySpdPtr00;
+
 	memcpy(memory_params->DqByteMapCh0, params->pei_data->dq_map[0],
 		sizeof(params->pei_data->dq_map[0]));
 	memcpy(memory_params->DqByteMapCh1, params->pei_data->dq_map[1],
