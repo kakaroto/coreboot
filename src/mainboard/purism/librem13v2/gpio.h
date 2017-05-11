@@ -223,9 +223,7 @@ static const struct pad_config gpio_table[] = {
 /* I2C3_SDA */		PAD_CFG_NC_1V8(GPP_F6),
 /* I2C3_SCL */		PAD_CFG_NC_1V8(GPP_F7),
 /* I2C4_SDA */		PAD_CFG_NF_1V8(GPP_F8, NONE, DEEP, NF1),
-/* AUDIO1V8_SDA */
 /* I2C4_SCL */		PAD_CFG_NF_1V8(GPP_F9, NONE, DEEP, NF1),
-/* AUDIO1V8_SCL */
 /* I2C5_SDA */		PAD_CFG_NC_1V8(GPP_F10),
 /* I2C5_SCL */		PAD_CFG_NC_1V8(GPP_F11),
 /* EMMC_CMD */		PAD_CFG_NC(GPP_F12),
@@ -262,6 +260,22 @@ static const struct pad_config gpio_table[] = {
 /* SLP_WLAN# */		PAD_CFG_NF(GPD9, NONE, RSMRST, NF1),
 /* SLP_S5# */		PAD_CFG_NF(GPD10, NONE, RSMRST, NF1),
 /* LANPHYC */		PAD_CFG_NF(GPD11, NONE, DEEP, NF1),
+};
+
+/* Early pad configuration in romstage. */
+static const struct pad_config early_gpio_table[] = {
+/* SRCCLKREQ0# */	PAD_CFG_NF_EVCFG(GPP_B5, NONE, DEEP, NF1, LEVEL),
+/* SRCCLKREQ1# */	PAD_CFG_NF(GPP_B6, NONE, DEEP, NF1),
+/* SRCCLKREQ2# */	PAD_CFG_NF(GPP_B7, NONE, DEEP, NF1),
+/* SRCCLKREQ3# */	PAD_CFG_NF(GPP_B8, NONE, DEEP, NF1),
+/* SRCCLKREQ4# */	PAD_CFG_NF(GPP_B9, NONE, DEEP, NF1),
+/* SRCCLKREQ5# */	PAD_CFG_NF(GPP_B10, NONE, DEEP, NF1),
+/* UART0_RTS# */	PAD_CFG_NF(GPP_C10, NONE, DEEP, NF1),
+/* UART0_CTS# */	PAD_CFG_NF(GPP_C11, NONE, DEEP, NF1),
+/* UART0_RXD */		PAD_CFG_NF(GPP_C8, NONE, DEEP, NF1),
+/* UART0_TXD */		PAD_CFG_NF(GPP_C9, NONE, DEEP, NF1),
+/* I2C4_SDA */		PAD_CFG_NF_1V8(GPP_F8, NONE, DEEP, NF1),
+/* I2C4_SCL */		PAD_CFG_NF_1V8(GPP_F9, NONE, DEEP, NF1),
 };
 
 #endif
