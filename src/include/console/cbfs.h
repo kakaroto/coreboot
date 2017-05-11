@@ -22,7 +22,7 @@
 void cbfsconsole_init(void);
 void cbfsconsole_tx_byte(unsigned char c);
 
-#define __CONSOLE_CBFS_ENABLE__	(CONFIG_CONSOLE_CBFS && ENV_RAMSTAGE)
+#define __CONSOLE_CBFS_ENABLE__	(CONFIG_CONSOLE_CBFS/* && ENV_RAMSTAGE*/)
 
 #if __CONSOLE_CBFS_ENABLE__
 static inline void __cbfsconsole_init(void)	{ cbfsconsole_init(); }

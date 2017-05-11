@@ -8,6 +8,8 @@ smm-$(CONFIG_DEBUG_SMI) += spiconsole.c
 endif
 
 ifeq ($(CONFIG_CONSOLE_CBFS),y)
+bootblock-y += cbfsconsole.c
+romstage-y += cbfsconsole.c
 ramstage-y += cbfsconsole.c
 smm-$(CONFIG_DEBUG_SMI) += cbfsconsole.c
 

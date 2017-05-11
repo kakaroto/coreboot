@@ -236,6 +236,7 @@ endif
 config CONSOLE_CBFS
 	bool "CBFS console output"
 	default n
+	select BOOT_DEVICE_SPI_FLASH_RW_NOMMAP_EARLY
 	help
 	  Send coreboot debug output to the SPI Flash in CBFS 'debug' region.
 
