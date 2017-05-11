@@ -7,6 +7,21 @@ ramstage-y += spiconsole.c
 smm-$(CONFIG_DEBUG_SMI) += spiconsole.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_CBFS),y)
+ramstage-y += cbfsconsole.c
+smm-$(CONFIG_DEBUG_SMI) += cbfsconsole.c
+
+$(obj)/console: $(obj)/config.h
+	dd if=/dev/zero count=1 \
+	bs=$(shell printf "%d" $(CONFIG_CONSOLE_CBFS_BUFFER_SIZE) ) \
+	| tr '\000' '\377' > $@
+
+cbfs-files-y += console
+console-file := $(obj)/console
+console-type := raw
+console-align := 4096
+endif
+
 bootblock-y += spi-generic.c
 bootblock-$(CONFIG_COMMON_CBFS_SPI_WRAPPER) += cbfs_spi.c
 bootblock-$(CONFIG_SPI_FLASH) += spi_flash.c

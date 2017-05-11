@@ -233,6 +233,23 @@ config CONSOLE_CBMEM_DUMP_TO_UART
 
 endif
 
+config CONSOLE_CBFS
+	bool "CBFS console output"
+	default n
+	help
+	  Send coreboot debug output to the SPI Flash in CBFS 'debug' region.
+
+if CONSOLE_CBFS
+
+config CONSOLE_CBFS_BUFFER_SIZE
+	hex "Room allocated for console output in CBFS"
+	default 0x20000
+	help
+	  Space allocated for console output storage in CBFS. The default
+	  value (128K or 0x20000 bytes) is large enough to accommodate
+	  even the BIOS_SPEW level.
+endif
+
 config CONSOLE_QEMU_DEBUGCON
 	bool "QEMU debug console output"
 	depends on BOARD_EMULATION_QEMU_X86
