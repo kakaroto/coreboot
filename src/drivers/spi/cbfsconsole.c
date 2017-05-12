@@ -19,6 +19,8 @@
 #include <cbfs.h>
 #include <console/cbfs.h>
 #include <string.h>
+#include <assert.h>
+#include <spi_flash.h>
 
 #define LINE_BUFFER_SIZE 0x100
 
@@ -46,8 +48,27 @@ void cbfsconsole_init(void)
 
 		boot_device_init();
 		car_set_var(g_rdev, boot_device_rw());
-		rdev_eraseat(car_get_var(g_rdev), car_get_var(g_cbfs_offset),
+
+		int ret;
+		{
+			const struct spi_flash *flash;
+			uint32_t buf[4];
+			uint8_t status;
+
+			flash = boot_device_spi_flash();
+			printk(BIOS_INFO, "flash->size = %X\n", flash->size);
+			ret = spi_flash_status(flash, &status);
+			printk(BIOS_INFO, "flash status (%d) = %X\n",
+				ret, status);
+			ret = spi_flash_read(flash, 0x10, 0x10,
+				(uint8_t *) buf);
+			printk(BIOS_INFO, "flash read (%d) = %X %X %X %X\n",
+				ret, buf[0], buf[1], buf[2], buf[3]);
+		}
+		ret = rdev_eraseat(car_get_var(g_rdev),
+			car_get_var(g_cbfs_offset),
 			car_get_var(g_cbfs_size));
+		printk(BIOS_INFO, "flash erase done (%d)\n", ret);
 	}
 
 }

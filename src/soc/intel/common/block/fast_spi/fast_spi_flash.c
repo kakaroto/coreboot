@@ -148,7 +148,13 @@ static int exec_sync_hwseq_xfer(struct fast_spi_flash_ctx *ctx,
 				uint32_t hsfsts_cycle, uint32_t flash_addr,
 				size_t len)
 {
+	uint32_t hsfsts;
+
+	hsfsts = fast_spi_flash_ctrlr_reg_read(ctx, SPIBAR_HSFSTS_CTL);
+	printk(BIOS_INFO, "before exec xfer : HSFSTS = 0x%08x\n", hsfsts);
 	start_hwseq_xfer(ctx, hsfsts_cycle, flash_addr, len);
+	hsfsts = fast_spi_flash_ctrlr_reg_read(ctx, SPIBAR_HSFSTS_CTL);
+	printk(BIOS_INFO, "after exec xfer : HSFSTS = 0x%08x\n", hsfsts);
 	return wait_for_hwseq_xfer(ctx, flash_addr);
 }
 
