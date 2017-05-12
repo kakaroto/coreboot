@@ -34,6 +34,7 @@ void cbfsconsole_init(void)
 {
 	struct cbfsf file;
 	struct region_device cbfs_region;
+	struct region_device *rdev;
 	uint8_t *line_buffer = car_get_var_ptr(g_line_buffer);
 
 	car_set_var(g_rdev, NULL);
@@ -47,7 +48,7 @@ void cbfsconsole_init(void)
 		car_set_var(g_cbfs_size, region_device_sz(&cbfs_region));
 
 		boot_device_init();
-		car_set_var(g_rdev, boot_device_rw());
+		rdev = boot_device_rw();
 
 		int ret;
 		{
@@ -65,10 +66,11 @@ void cbfsconsole_init(void)
 			printk(BIOS_INFO, "flash read (%d) = %X %X %X %X\n",
 				ret, buf[0], buf[1], buf[2], buf[3]);
 		}
-		ret = rdev_eraseat(car_get_var(g_rdev),
+		ret = rdev_eraseat(rdev,
 			car_get_var(g_cbfs_offset),
 			car_get_var(g_cbfs_size));
 		printk(BIOS_INFO, "flash erase done (%d)\n", ret);
+		car_set_var(g_rdev, rdev);
 	}
 
 }
