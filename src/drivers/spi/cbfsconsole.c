@@ -22,7 +22,7 @@
 #include <assert.h>
 #include <spi_flash.h>
 
-#define LINE_BUFFER_SIZE 0x100
+#define LINE_BUFFER_SIZE 0x1000
 
 static const struct region_device *g_rdev CAR_GLOBAL;
 static uint8_t g_line_buffer[LINE_BUFFER_SIZE] CAR_GLOBAL;
@@ -33,44 +33,66 @@ static uint32_t g_offset CAR_GLOBAL;
 void cbfsconsole_init(void)
 {
 	struct cbfsf file;
-	struct region_device cbfs_region;
-	struct region_device *rdev;
-	uint8_t *line_buffer = car_get_var_ptr(g_line_buffer);
 
 	car_set_var(g_rdev, NULL);
 	car_set_var(g_offset, 0);
-	memset(line_buffer, 0, sizeof(g_line_buffer));
 
 	cbfs_prepare_program_locate();
 	if (cbfs_boot_locate(&file, "console", NULL) == 0) {
+		struct region_device cbfs_region;
+		const struct region_device *rdev;
+		uint8_t *line_buffer = car_get_var_ptr(g_line_buffer);
+		uint32_t cbfs_offset;
+		uint32_t cbfs_size;
+		uint32_t offset = 0;
+		int i;
+		int len = LINE_BUFFER_SIZE;
+
 		cbfs_file_data(&cbfs_region, &file);
-		car_set_var(g_cbfs_offset, region_device_offset(&cbfs_region));
-		car_set_var(g_cbfs_size, region_device_sz(&cbfs_region));
+		cbfs_offset = region_device_offset(&cbfs_region);
+		cbfs_size = region_device_sz(&cbfs_region);
 
 		boot_device_init();
 		rdev = boot_device_rw();
 
-		int ret;
-		{
-			const struct spi_flash *flash;
-			uint32_t buf[4];
-			uint8_t status;
-
-			flash = boot_device_spi_flash();
-			printk(BIOS_INFO, "flash->size = %X\n", flash->size);
-			ret = spi_flash_status(flash, &status);
-			printk(BIOS_INFO, "flash status (%d) = %X\n",
-				ret, status);
-			ret = spi_flash_read(flash, 0x10, 0x10,
-				(uint8_t *) buf);
-			printk(BIOS_INFO, "flash read (%d) = %X %X %X %X\n",
-				ret, buf[0], buf[1], buf[2], buf[3]);
+		/*
+		 * We need to check the region until we find a 0xff indicating
+		 * the end of a previous log write.
+		 * We can't erase the region because one stage would erase the
+		 * data from the previous stage. Also, it looks like doing an
+		 * erase could completely freeze the SPI controller and then
+		 * we can't write anything anymore.
+		 */
+		for (i = 0; i < len && offset < cbfs_size; ) {
+			// Fill the buffer on first iteration
+			if (i == 0) {
+				len = min(LINE_BUFFER_SIZE, cbfs_size - offset);
+				rdev_readat(rdev, line_buffer,
+					cbfs_offset + offset, len);
+			}
+			if (line_buffer[i] == 0xff) {
+				offset += i;
+				break;
+			}
+			// If we're done, repeat the process for the next sector
+			if (++i == LINE_BUFFER_SIZE) {
+				offset += len;
+				i = 0;
+			}
 		}
-		ret = rdev_eraseat(rdev,
-			car_get_var(g_cbfs_offset),
-			car_get_var(g_cbfs_size));
-		printk(BIOS_INFO, "flash erase done (%d)\n", ret);
-		car_set_var(g_rdev, rdev);
+		// Make sure there is still space left on the console
+		if (offset < cbfs_size) {
+			// Now we can enable tx_byte
+			car_set_var(g_cbfs_offset, cbfs_offset);
+			car_set_var(g_cbfs_size, cbfs_size);
+			car_set_var(g_offset, offset);
+			memset(line_buffer, 0, LINE_BUFFER_SIZE);
+			car_set_var(g_rdev, rdev);
+		} else {
+			printk(BIOS_INFO, "No space left on 'console' region in CBFS.");
+		}
+	} else {
+		printk(BIOS_INFO, "Can't find 'console' region in CBFS.");
 	}
 
 }
@@ -85,6 +107,11 @@ void cbfsconsole_tx_byte(unsigned char c)
 		uint32_t cbfs_size = car_get_var(g_cbfs_size);
 		int i;
 		uint32_t len = LINE_BUFFER_SIZE;
+
+		/* Prevent any recursive loops in case the spi flash driver
+		 * calls printk (in case of transaction timeout or
+		 * any other error while writing) */
+		car_set_var(g_rdev, NULL);
 
 		for (i = 0; i < LINE_BUFFER_SIZE - 1; i++) {
 			if (line_buffer[i] == 0) {
@@ -112,6 +139,7 @@ void cbfsconsole_tx_byte(unsigned char c)
 			car_set_var(g_offset, offset);
 			line_buffer[0] = 0;
 		}
+		car_set_var(g_rdev, rdev);
 	}
 
 }
