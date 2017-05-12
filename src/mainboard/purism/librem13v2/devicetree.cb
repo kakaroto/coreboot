@@ -11,7 +11,7 @@ chip soc/intel/skylake
 	# Note that GPE events called out in ASL code rely on this
 	# route. i.e. If this route changes then the affected GPE
 	# offset bits also need to be changed.
-	register "gpe0_dw0" = "GPP_B"
+	register "gpe0_dw0" = "GPP_C"
 	register "gpe0_dw1" = "GPP_D"
 	register "gpe0_dw2" = "GPP_E"
 
@@ -165,7 +165,10 @@ chip soc/intel/skylake
 	register "usb3_ports[2]" = "USB3_PORT_DEFAULT(OC0)"	# Type-A Port
 	register "usb3_ports[3]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# SD
 
+	register "i2c_voltage[2]" = "I2C_VOLTAGE_1V8"  # I2C4 is 1.8V
+	register "i2c_voltage[3]" = "I2C_VOLTAGE_1V8"  # I2C4 is 1.8V
 	register "i2c_voltage[4]" = "I2C_VOLTAGE_1V8"  # I2C4 is 1.8V
+	register "i2c_voltage[5]" = "I2C_VOLTAGE_1V8"  # I2C4 is 1.8V
 
 	# Must leave UART0 enabled or SD/eMMC will not work as PCI
 	register "SerialIoDevMode" = "{

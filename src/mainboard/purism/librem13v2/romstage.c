@@ -16,6 +16,7 @@
  */
 
 #include <string.h>
+#include <assert.h>
 #include <arch/acpi.h>
 #include <soc/pei_data.h>
 #include <soc/pei_wrapper.h>
@@ -35,10 +36,19 @@ void mainboard_memory_init_params(struct romstage_params *params,
 {
 	struct spd_block blk;
 
+	memory_params->DqPinsInterleaved = 1;
+	printk(BIOS_INFO, "In mainboard_memory_init_params\n");
 	get_spd_smbus(&blk);
+	dump_spd_info(&blk);
 	memory_params->MemorySpdDataLen = blk.len;
-	memory_params->MemorySpdPtr00 = (u32)blk.spd_array[0];
-	//memory_params->MemorySpdPtr10 = memory_params->MemorySpdPtr00;
+	if (blk.spd_array[0][0] != 0)
+		memory_params->MemorySpdPtr00 = (u32)blk.spd_array[0];
+	if (blk.spd_array[1][0] != 0)
+		memory_params->MemorySpdPtr10 = (u32)blk.spd_array[1];
+	if (blk.spd_array[2][0] != 0)
+		memory_params->MemorySpdPtr01 = (u32)blk.spd_array[2];
+	if (blk.spd_array[3][0] != 0)
+		memory_params->MemorySpdPtr11 = (u32)blk.spd_array[3];
 
 	memcpy(memory_params->DqByteMapCh0, params->pei_data->dq_map[0],
 		sizeof(params->pei_data->dq_map[0]));
@@ -52,6 +62,5 @@ void mainboard_memory_init_params(struct romstage_params *params,
 		sizeof(params->pei_data->RcompResistor));
 	memcpy(memory_params->RcompTarget, params->pei_data->RcompTarget,
 		sizeof(params->pei_data->RcompTarget));
-	memory_params->DqPinsInterleaved = TRUE;
 
 }
