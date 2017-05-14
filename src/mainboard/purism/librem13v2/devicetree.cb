@@ -147,14 +147,12 @@ chip soc/intel/skylake
 		.voltage_limit = 1520,
 	}"
 
-	# Enable Root port 1 and 5.
-	register "PcieRpEnable[0]" = "1"
+	# Enable Root port 5
 	register "PcieRpEnable[4]" = "1"
 	# Enable CLKREQ#
 	register "PcieRpClkReqSupport[0]" = "1"
-	# RP 1 uses SRCCLKREQ1# while RP 5 uses SRCCLKREQ2#
-	# register "PcieRpClkReqNumber[0]" = "1"
-	register "PcieRpClkReqNumber[4]" = "1"
+	# Default value from FSP programming guide
+	register "PcieRpClkReqNumber[4]" = "3"
 
 	register "usb2_ports[0]" = "USB2_PORT_LONG(OC_SKIP)"	# Type-C Port
 	register "usb2_ports[1]" = "USB2_PORT_MID(OC_SKIP)"	# Type-A Port (right)
@@ -189,11 +187,11 @@ chip soc/intel/skylake
 		device pci 16.3 off end # Management Engine KT Redirection
 		device pci 16.4 off end # Management Engine Interface 3
 		device pci 17.0 on  end # SATA
-		device pci 1c.0 off end # PCI Express Port 1
+		device pci 1c.0 on  end # PCI Express Port 1
 		device pci 1c.1 off end # PCI Express Port 2
 		device pci 1c.2 off end # PCI Express Port 3
 		device pci 1c.3 off end # PCI Express Port 4
-		device pci 1c.4 on  end # PCI Express Port 5
+		device pci 1c.4 off end # PCI Express Port 5
 		device pci 1c.5 off end # PCI Express Port 6
 		device pci 1c.6 off end # PCI Express Port 7
 		device pci 1c.7 off end # PCI Express Port 8
