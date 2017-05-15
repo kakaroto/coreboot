@@ -574,6 +574,33 @@ static void print_gpio_group(const uint8_t pid, size_t pad_cfg,
 	}
 }
 
+static void print_gpio_community_config(const uint8_t pid)
+{
+	size_t msc_cfg = read_pcr32(pid, 0x10);
+	int dyn_local_lock = msc_cfg & 0x1;
+	int dyn_partition_lock = (msc_cfg >> 1) & 0x1;
+	int static_local_lock = (msc_cfg >> 2) & 0x1;
+	int irq_route = (msc_cfg >> 3) & 0x1;
+	int gpe_dw0 = (msc_cfg >> 8) & 0xf;
+	int gpe_dw1 = (msc_cfg >> 12) & 0xf;
+	int gpe_dw2 = (msc_cfg >> 16) & 0xf;
+
+	printf("MSC Configuration: 0x%X\n", msc_cfg);
+
+	printf("GPIO Dynamic Local Clock Gating : %s\n",
+		dyn_local_lock ? "Enabled" : "Disabled");
+	printf("GPIO Dynamic Partition Clock Gating : %s\n",
+		dyn_partition_lock ? "Enabled" : "Disabled");
+	printf("GPIO Static Local Clock Gating : %s\n",
+		static_local_lock ? "Enabled" : "Disabled");
+	printf("GPIO Driver IRQ Route : IRQ%s\n",
+		irq_route ? "15" : "14");
+
+	printf("GPE DW0 : %c\n", 'A' + gpe_dw0);
+	printf("GPE DW1 : %c\n", 'A' + gpe_dw1);
+	printf("GPE DW2 : %c\n", 'A' + gpe_dw2);
+}
+
 static void print_gpio_community(const struct gpio_community *const community,
 				 const bool devtree_mode)
 {
@@ -593,6 +620,7 @@ static void print_gpio_community(const struct gpio_community *const community,
 		fprintf(stderr, "Bad Pad Base Address: 0x%08zx\n", pad_cfg);
 		return;
 	}
+	print_gpio_community_config (community->pcr_port_id);
 
 	for (group = 0; group < community->group_count; ++group) {
 		if (devtree_mode) {
