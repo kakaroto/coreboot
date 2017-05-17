@@ -238,7 +238,17 @@ config CONSOLE_CBFS
 	default n
 	select BOOT_DEVICE_SPI_FLASH_RW_NOMMAP_EARLY
 	help
-	  Send coreboot debug output to the SPI Flash in CBFS 'debug' region.
+	  Send coreboot debug output to the SPI Flash in CBFS 'console' region.
+
+	  This option can cause premature wear on the SPI flash and should not
+	  be used as a normal means of debugging. It is only to be enabled and
+	  used when porting a new motherboard which has no other console
+	  available (no UART, no POST, no cbmem access(non bootable)).
+
+	  The CBFS console will not be erased on reboot, so once it is full, the
+	  cbfsconsole driver will stop writing to it. This is to avoid wear on the
+	  flash, and to avoid erasing sectors (which may freeze the SPI controller
+	  on skylake)
 
 if CONSOLE_CBFS
 
