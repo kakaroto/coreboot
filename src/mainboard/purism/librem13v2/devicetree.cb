@@ -167,8 +167,8 @@ chip soc/intel/skylake
 	register "usb3_ports[1]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# Type-A Port (right)
 	register "usb3_ports[2]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# Type-C Port
 
-	# PL2 override 15W
-	register "tdp_pl2_override" = "15"
+	# PL2 override 25W
+	register "tdp_pl2_override" = "25"
 
 	register "tcc_offset" = "10"     # TCC of 90C
 
