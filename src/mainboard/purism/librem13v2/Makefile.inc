@@ -17,7 +17,6 @@ bootblock-y += bootblock_mainboard.c
 
 romstage-y += pei_data.c
 
-ramstage-y += mainboard.c
 ramstage-y += pei_data.c
 ramstage-y += ramstage.c
 ramstage-y += hda_verb.c
