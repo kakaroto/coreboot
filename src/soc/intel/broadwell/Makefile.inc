@@ -54,6 +54,7 @@ romstage-y += smbus_common.c
 ramstage-y += smi.c
 smm-y      += smihandler.c
 ramstage-y += smmrelocate.c
+romstage-y += spi.c
 ramstage-y += spi.c
 smm-$(CONFIG_SPI_FLASH_SMM) += spi.c
 ramstage-y += stage_cache.c
