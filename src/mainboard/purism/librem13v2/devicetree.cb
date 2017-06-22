@@ -111,19 +111,6 @@ chip soc/intel/skylake
 		.voltage_limit = 1520,
 	}"
 
-	register "domain_vr_config[VR_RING]" = "{
-		.vr_config_enable = 1,
-		.psi1threshold = VR_CFG_AMP(20),
-		.psi2threshold = VR_CFG_AMP(5),
-		.psi3threshold = VR_CFG_AMP(1),
-		.psi3enable = 1,
-		.psi4enable = 1,
-		.imon_slope = 0x0,
-		.imon_offset = 0x0,
-		.icc_max = VR_CFG_AMP(34),
-		.voltage_limit = 1520,
-	}"
-
 	register "domain_vr_config[VR_GT_UNSLICED]" = "{
 		.vr_config_enable = 1,
 		.psi1threshold = VR_CFG_AMP(20),
