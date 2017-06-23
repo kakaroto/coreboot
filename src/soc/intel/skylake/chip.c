@@ -129,6 +129,9 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	memcpy(params->PcieRpClkReqNumber, config->PcieRpClkReqNumber,
 			sizeof(params->PcieRpClkReqNumber));
 
+	/* disable Legacy PME */
+	memset(params->PcieRpPmSci, 0, sizeof(params->PcieRpPmSci));
+
 	params->EnableLan = config->EnableLan;
 	params->Cio2Enable = config->Cio2Enable;
 	params->SataSalpSupport = config->SataSalpSupport;
