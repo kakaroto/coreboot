@@ -18,6 +18,7 @@
 #include <device/pci_def.h>
 #include <device/pci_ids.h>
 #include <soc/pci_devs.h>
+#include <delay.h>
 
 #define SATA_ABAR_PORT_IMPLEMENTED	0x0c
 #define SATA_PCI_CFG_PORT_CTL_STS	0x92
@@ -43,6 +44,7 @@ static void sata_final(device_t dev)
 {
 	void *ahcibar = get_ahci_bar();
 	u32 port_impl, temp;
+	u32 sctl;
 
 	dev = PCH_DEV_SATA;
 	/* Read Ports Implemented (GHC_PI) */
@@ -51,6 +53,15 @@ static void sata_final(device_t dev)
 	temp = pci_read_config32(dev, SATA_PCI_CFG_PORT_CTL_STS);
 	temp |= port_impl;
 	pci_write_config32(dev, SATA_PCI_CFG_PORT_CTL_STS, temp);
+
+	sctl = read32(ahcibar + 0x0) & (0xff0fffff);
+	sctl |= 2 << 20;
+	write32(ahcibar + 0x0, sctl);
+	write32(ahcibar + 0x12c, 0x321);
+	write32(ahcibar + 0x22c, 0x321);
+	mdelay(5);
+	write32(ahcibar + 0x12c, 0x320);
+	write32(ahcibar + 0x22c, 0x320);
 }
 
 static struct device_operations sata_ops = {
