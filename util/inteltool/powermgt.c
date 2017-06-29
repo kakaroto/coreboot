@@ -811,6 +811,9 @@ int print_pmbase(struct pci_dev *sb, struct pci_access *pacc)
 		break;
 
 	case PCI_DEVICE_ID_INTEL_CM236:
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_BASE:
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_PREM:
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_Y_PREM:
 		acpi = pci_get_dev(pacc, sb->domain, sb->bus, sb->dev, 2);
 		if (!acpi) {
 			printf("PMC device not found.\n");

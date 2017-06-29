@@ -67,7 +67,8 @@ int print_ahci(struct pci_dev *ahci)
 	}
 	printf("\n============= AHCI Registers ==============\n\n");
 
-	if (ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA)
+	if (ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA ||
+		ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SATA)
 		mmio_size = 0x800;
 	else
 		mmio_size = 0x400;
@@ -96,9 +97,14 @@ int print_ahci(struct pci_dev *ahci)
 			print_port(mmio, i);
 	}
 
-	if (ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA) {
+	if (ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA ||
+		ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SATA) {
 		puts("\nOther registers:");
-		for (i = 0x500; i < mmio_size; i += 4) {
+		if (ahci->device_id == PCI_DEVICE_ID_INTEL_SUNRISEPOINT_SATA)
+			i = 0x480;
+		else
+			i = 0x280;
+		for (; i < mmio_size; i += 4) {
 			if (MMIO(i))
 				printf("0x%03zx: 0x%08x\n", i, MMIO(i));
 		}
