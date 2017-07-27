@@ -48,6 +48,13 @@ static void print_pcr_port(const uint8_t port)
 
 		last_reg = reg;
 		last_printed = !rep;
+		if ((port == 0xcf && i == 0x7258) ||
+			(port == 0xe5 && i == 0x204) ||
+			(port == 0xee && i == 0x4058) ||
+			(port == 0xf5 && i == 0x1c8)) {
+			printf("BREAK!\n");
+			break;
+		}
 	}
 	if (!last_printed)
 		printf("*\n");
@@ -63,6 +70,31 @@ void print_pcr_ports(struct pci_dev *const sb,
 	for (i = 0; i < count; ++i) {
 		printf("\n========== PCR 0x%02x ==========\n\n", ports[i]);
 		print_pcr_port(ports[i]);
+	}
+}
+
+
+void print_all_pcr_ports(struct pci_dev *const sb)
+{
+	uint8_t port = 0;
+	size_t i = 0;
+	uint32_t last_reg = 0;
+
+	pcr_init(sb);
+
+	for (port = 0x0; ; port++) {
+		if (port == 0xf0 || port == 0xf1)
+			continue;
+		for (i = 0; i < PCR_PORT_SIZE; i += 4) {
+			const uint32_t reg = read_pcr32(port, i);
+			if (reg != 0xffffffff) {
+				printf("\n========== PCR 0x%02x ==========\n\n", port);
+				print_pcr_port(port);
+				break;
+			}
+		}
+		if (port == 0xff)
+			break;
 	}
 }
 

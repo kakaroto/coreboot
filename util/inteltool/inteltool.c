@@ -450,6 +450,7 @@ int main(int argc, char *argv[])
 		if (dev->device_class == 0x0601) { /* ISA/LPC bridge */
 			if (sb == NULL) {
 				sb = dev;
+				sb->access = pacc;
 			} else {
 				fprintf(stderr, "Multiple devices with class ID"
 					" 0x0601, using %02x%02x:%02x.%02x\n",
@@ -612,7 +613,10 @@ int main(int argc, char *argv[])
 		}
 
 		if (dump_pcr) {
-			print_pcr_ports(sb, dump_pcr, pcr_count);
+			if (pcr_count == 1 && dump_pcr[0] == 0)
+				print_all_pcr_ports(sb);
+			else
+				print_pcr_ports(sb, dump_pcr, pcr_count);
 		}
 	} else {
 		print_gpio_groups(sb, devtree_mode);
