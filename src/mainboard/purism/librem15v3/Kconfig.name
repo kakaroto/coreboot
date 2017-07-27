@@ -1,0 +1,2 @@
+config BOARD_PURISM_LIBREM15_V3
+	bool "Librem 15 v3"
