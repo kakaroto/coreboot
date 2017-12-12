@@ -209,6 +209,8 @@ static const struct {
 	  "Sunrise Point Low Power PCH-U SKU" },
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_PREM,
 	  "Sunrise Point Low Power PCH-U Premium SKU" },
+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_Y_BASE,
+	  "Sunrise Point Low Power PCH-Y SKU" },
 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_Y_PREM,
 	  "Sunrise Point Low Power PCH-Y Premium SKU" },
 };

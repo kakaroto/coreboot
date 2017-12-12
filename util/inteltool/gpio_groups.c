@@ -647,6 +647,7 @@ void print_gpio_groups(struct pci_dev *const sb, const bool devtree_mode)
 		break;
 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_BASE:
 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_PREM:
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_Y_BASE:
 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_Y_PREM:
 		community_count = ARRAY_SIZE(sunrise_communities_lp);
 		communities = sunrise_communities_lp;
