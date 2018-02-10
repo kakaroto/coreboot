@@ -556,6 +556,27 @@ static const char *decode_pad_mode(const struct gpio_group *const group,
 		return "RESERVED";
 }
 
+static const char *decode_pad_owner(const uint8_t pid,
+				   const size_t pad, const uint32_t dw0)
+{
+  uint32_t owner_index = 0x20 + (pad / 8) * 4;
+  uint32_t owner_nibble = pad % 8;
+  uint32_t owner_reg = read_pcr32(pid, owner_index);
+  uint8_t owner = (owner_reg >> (owner_nibble * 4)) & 0x3;
+
+  switch (owner) {
+    case 0:
+      return "Host GPIO ACPI Mode or GPIO Driver Mode";
+    case 1:
+      return "ME GPIO Mode";
+    case 2:
+      return "ISH GPIO Mode";
+    case 3:
+      return "Reserved";
+  }
+  return "??";
+}
+
 static void print_gpio_group(const uint8_t pid, size_t pad_cfg,
 			     const struct gpio_group *const group)
 {
@@ -567,10 +588,11 @@ static void print_gpio_group(const uint8_t pid, size_t pad_cfg,
 		const uint32_t dw0 = read_pcr32(pid, pad_cfg);
 		const uint32_t dw1 = read_pcr32(pid, pad_cfg + 4);
 
-		printf("0x%04zx: 0x%016"PRIx64" %-8s %-20s\n", pad_cfg,
+		printf("0x%04zx: 0x%016"PRIx64" %-8s %-20s (%s)\n", pad_cfg,
 		       (uint64_t)dw1 << 32 | dw0,
 		       group->pad_names[p * group->func_count],
-		       decode_pad_mode(group, p, dw0));
+                    decode_pad_mode(group, p, dw0),
+                    decode_pad_owner(pid, p, dw0));
 	}
 }
 
