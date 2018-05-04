@@ -130,6 +130,7 @@ int print_bioscntl(struct pci_dev *sb)
 	case PCI_DEVICE_ID_INTEL_PM55:
 	case PCI_DEVICE_ID_INTEL_QM57:
 	case PCI_DEVICE_ID_INTEL_QS57:
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_PREM:
 		bios_cntl = pci_read_byte(sb, 0xdc);
 		bios_cntl_register = pch_bios_cntl_registers;
 		size = ARRAY_SIZE(pch_bios_cntl_registers);
@@ -245,6 +246,14 @@ int print_spibar(struct pci_dev *sb) {
 	case PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP:
 		spibaroffset = ICH9_SPIBAR;
 		rcba_phys = pci_read_long(sb, 0xf0) & 0xfffffffe;
+		size = ARRAY_SIZE(spi_bar_registers);
+		spi_register = spi_bar_registers;
+		break;
+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_U_PREM:
+		spibaroffset = 0;
+		struct pci_dev *const spi_dev = pci_get_dev(sb->access, 0, 0, 0x1f, 5);
+		rcba_phys = pci_read_long(spi_dev, 0x10) & 0xfffff000;
+		rcba_size = 0x1000;
 		size = ARRAY_SIZE(spi_bar_registers);
 		spi_register = spi_bar_registers;
 		break;
