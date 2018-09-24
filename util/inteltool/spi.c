@@ -18,12 +18,13 @@ static const io_register_t ich7_bios_cntl_registers[] = {
 };
 
 static const io_register_t pch_bios_cntl_registers[] = {
-	{ 0x0, 1, "BIOSWE - write enable" },
-	{ 0x1, 1, "BLE - lock enable" },
-	{ 0x2, 2, "SPI Read configuration" },
-	{ 0x4, 1, "TopSwapStatus" },
-	{ 0x5, 1, "SMM Bios Write Protect Disable" },
-	{ 0x6, 2, "reserved" },
+	{ 0x0, 1, "WPD - Write Protect Disable" },
+	{ 0x1, 1, "LE - Lock Enable" },
+	{ 0x2, 2, "LPC_ESPI - LPC or eSPI Strap" },
+	{ 0x4, 1, "TS - Top Swap" },
+	{ 0x5, 1, "EISS - SMM Bios Write Protect Disable" },
+	{ 0x6, 1, "BBS - Boot BIOS Strap" },
+	{ 0x7, 1, "BILD - BIOS Interface Lock Down" },
 };
 
 #define ICH9_SPIBAR 0x3800
@@ -60,6 +61,37 @@ static const io_register_t spi_bar_registers[] = {
 	{ 0xc4, 4, "LVSCC - Host Lower Vendor Specific Component Capabilities" },
 	{ 0xc8, 4, "UVSCC - Host Upper Vendor Specific Component Capabilities" },
 	{ 0xd0, 4, "FPB - Flash Partition Boundary" },
+};
+
+static const io_register_t spi_bar_registers_pch100[] = {
+	{ 0x00, 4, "BFPR - BIOS Flash primary region" },
+	{ 0x04, 4, "HSFSTS_CTL - Hardware Sequencing Flash Status and Control" },
+	{ 0x08, 4, "FADDR - Flash Address" },
+	{ 0x0c, 4, "DLOCK - Discrete Lock Bits" },
+	{ 0x10, 4, "FDATA0" },
+	/* 0x10 .. 0x4f are filled with data */
+	{ 0x50, 4, "FRACC - Flash Region Access Permissions" },
+	{ 0x54, 4, "FREG0 - Flash Region 0" },
+	{ 0x58, 4, "FREG1 - Flash Region 1" },
+	{ 0x5c, 4, "FREG2 - Flash Region 2" },
+	{ 0x60, 4, "FREG3 - Flash Region 3" },
+	{ 0x64, 4, "FREG4 - Flash Region 4" },
+	{ 0x68, 4, "FREG5 - Flash Region 5" },
+	{ 0x84, 4, "FPR0 - Flash Protected Range 0" },
+	{ 0x88, 4, "FPR1 - Flash Protected Range 1" },
+	{ 0x8c, 4, "FPR2 - Flash Protected Range 2" },
+	{ 0x90, 4, "FPR3 - Flash Protected Range 3" },
+	{ 0x94, 4, "FPR4 - Flash Protected Range 4" },
+	{ 0x98, 4, "GPR0 - Global Protected Range 4" },
+	{ 0xB0, 4, "SFRACC - Secondary Flash Region Access Permissions" },
+	{ 0xb4, 4, "FDOC - Flash Descriptor Observability Control" },
+	{ 0xb8, 4, "FDOD - Flash Descriptor Observability Data" },
+	{ 0xc0, 4, "AFC - Additional Flash Control" },
+	{ 0xc4, 4, "SFDP0_VSCC0 - Vendor Specific Component Capabilities for Component 0" },
+	{ 0xc8, 4, "SFPD1_VSCC1 - Vendor Specific Component Capabilities for Component 1" },
+	{ 0xcc, 4, "PTINX - Parameter Table Index" },
+	{ 0xd0, 4, "PTDATA - Parameter Table Data" },
+	{ 0xd4, 4, "SBRS - SPI Bus Requester Status" },
 };
 
 static const io_register_t ich7_spi_bar_registers[] = {
@@ -254,8 +286,8 @@ int print_spibar(struct pci_dev *sb) {
 		struct pci_dev *const spi_dev = pci_get_dev(sb->access, 0, 0, 0x1f, 5);
 		rcba_phys = pci_read_long(spi_dev, 0x10) & 0xfffff000;
 		rcba_size = 0x1000;
-		size = ARRAY_SIZE(spi_bar_registers);
-		spi_register = spi_bar_registers;
+		size = ARRAY_SIZE(spi_bar_registers_pch100);
+		spi_register = spi_bar_registers_pch100;
 		break;
 	case PCI_DEVICE_ID_INTEL_ICH:
 	case PCI_DEVICE_ID_INTEL_ICH0:
