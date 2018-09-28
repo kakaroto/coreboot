@@ -54,19 +54,18 @@ static void pmc_lock_smi(void)
 	write8(pmcbase + GEN_PMCON_B, reg8);
 }
 
-static void pmc_lockdown_cfg(int chipset_lockdown)
+static void pmc_lockdown_cfg(void)
 {
 	/* PMSYNC */
 	pmc_lock_pmsync();
 	/* Lock down ABASE and sleep stretching policy */
 	pmc_lock_abase();
 
-	if (chipset_lockdown == CHIPSET_LOCKDOWN_COREBOOT)
-		pmc_lock_smi();
+	pmc_lock_smi();
 }
 
-void soc_lockdown_config(int chipset_lockdown)
+void soc_lockdown_config(void)
 {
 	/* PMC lock down configuration */
-	pmc_lockdown_cfg(chipset_lockdown);
+	pmc_lockdown_cfg();
 }

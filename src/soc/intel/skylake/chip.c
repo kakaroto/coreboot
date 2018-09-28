@@ -154,11 +154,10 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	params->SataMode = config->SataMode;
 	params->LockDownConfigGlobalSmi = config->LockDownConfigGlobalSmi;
 	params->LockDownConfigRtcLock = config->LockDownConfigRtcLock;
-	if (get_lockdown_config() == CHIPSET_LOCKDOWN_COREBOOT) {
-		params->LockDownConfigBiosInterface = 0;
-		params->LockDownConfigBiosLock = 0;
-		params->LockDownConfigSpiEiss = 0;
-	}
+	params->LockDownConfigBiosInterface = 0;
+	params->LockDownConfigBiosLock = 0;
+	params->LockDownConfigSpiEiss = 0;
+
 	/* only replacing preexisting subsys ID defaults when non-zero */
 #if defined(CONFIG_SUBSYSTEM_VENDOR_ID) && CONFIG_SUBSYSTEM_VENDOR_ID
 	params->PchConfigSubSystemVendorId = CONFIG_SUBSYSTEM_VENDOR_ID;

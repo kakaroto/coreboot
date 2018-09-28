@@ -185,11 +185,6 @@ chip soc/intel/skylake
 	# PL2 override 15W
 	register "tdp_pl2_override" = "15"
 
-	# Lock Down
-	register "common_soc_config" = "{
-		.chipset_lockdown = CHIPSET_LOCKDOWN_COREBOOT
-	}"
-
 	device cpu_cluster 0 on
 		device lapic 0 on end
 	end

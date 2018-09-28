@@ -19,13 +19,11 @@
 #include <intelpch/lockdown.h>
 #include <soc/pm.h>
 
-static void lpc_lockdown_config(int chipset_lockdown)
+static void lpc_lockdown_config(void)
 {
 	/* Set Bios Interface Lock, Bios Lock */
-	if (chipset_lockdown == CHIPSET_LOCKDOWN_COREBOOT) {
-		lpc_set_bios_interface_lock_down();
-		lpc_set_lock_enable();
-	}
+	lpc_set_bios_interface_lock_down();
+	lpc_set_lock_enable();
 }
 
 static void pmc_lockdown_config(void)
@@ -40,10 +38,10 @@ static void pmc_lockdown_config(void)
 	write32(pmcbase + PMSYNC_TPR_CFG, pmsyncreg);
 }
 
-void soc_lockdown_config(int chipset_lockdown)
+void soc_lockdown_config(void)
 {
 	/* LPC lock down configuration */
-	lpc_lockdown_config(chipset_lockdown);
+	lpc_lockdown_config();
 
 	/* PMC lock down configuration */
 	pmc_lockdown_config();
