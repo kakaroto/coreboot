@@ -51,8 +51,9 @@ void fast_spi_lock_bar(void);
 /*
  * Set FAST_SPIBAR + DLOCK (0x0C) register bits to discrete lock the
  * FAST_SPI Protected Range (PR) registers.
+ * Set argument to 1 to lock that specific PRR.
  */
-void fast_spi_pr_dlock(void);
+void fast_spi_pr_dlock(u8 prr0, u8 prr1, u8 prr2, u8 prr3, u8 prr4);
 /*
  * Set FAST_SPIBAR Soft Reset Data Register value.
  */
