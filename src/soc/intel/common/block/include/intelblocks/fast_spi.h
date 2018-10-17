@@ -45,6 +45,10 @@ void fast_spi_set_eiss(void);
  */
 void fast_spi_set_opcode_menu(void);
 /*
+ * Set PRR3 and PRR4 Registers.
+ */
+void fast_spi_set_prr34(void);
+/*
  * Lock FAST_SPIBAR.
  */
 void fast_spi_lock_bar(void);

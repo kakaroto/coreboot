@@ -14,6 +14,7 @@
  */
 
 #include <arch/io.h>
+#include <arch/acpi.h>
 #include <assert.h>
 #include <device/pci_def.h>
 #include <device/pci_ops.h>
@@ -144,6 +145,14 @@ void fast_spi_set_opcode_menu(void)
 	write32(spibar + SPIBAR_OPMENU_UPPER, SPI_OPMENU_UPPER);
 }
 
+void fast_spi_set_prr34(void)
+{
+	void *spibar = fast_spi_get_bar();
+
+	write32(spibar + SPIBAR_FPR(3), CONFIG_FAST_SPI_PRR3_REGISTER);
+	write32(spibar + SPIBAR_FPR(4), CONFIG_FAST_SPI_PRR4_REGISTER);
+}
+
 /*
  * Lock FAST_SPIBAR.
  * Use 16bit write to avoid touching two upper bytes what may cause the write
@@ -156,12 +165,23 @@ void fast_spi_set_opcode_menu(void)
 void fast_spi_lock_bar(void)
 {
 	void *spibar = fast_spi_get_bar();
-	uint16_t hsfs = SPIBAR_HSFSTS_FLOCKDN;
+	uint16_t hsfs = 0;
+
+	if (IS_ENABLED(CONFIG_FAST_SPI_LOCK_REGISTERS) ||
+		(IS_ENABLED(CONFIG_FAST_SPI_LOCK_REGISTERS_ON_RESUME) &&
+			acpi_is_wakeup_s3()))
+		hsfs |= SPIBAR_HSFSTS_FLOCKDN;
+
+	if (IS_ENABLED(CONFIG_FAST_SPI_LOCK_PRR34_REGISTERS) ||
+		(IS_ENABLED(CONFIG_FAST_SPI_LOCK_PRR34_REGISTERS_ON_RESUME) &&
+			acpi_is_wakeup_s3()))
+		hsfs |= SPIBAR_HSFSTS_PRR34_LOCKDN;
 
 	if (IS_ENABLED(CONFIG_FAST_SPI_DISABLE_WRITE_STATUS))
 		hsfs |= SPIBAR_HSFSTS_WRSDIS;
 
-	write16(spibar + SPIBAR_HSFSTS_CTL, hsfs);
+	if (hsfs)
+		write16(spibar + SPIBAR_HSFSTS_CTL, hsfs);
 }
 
 /*

@@ -37,7 +37,7 @@
 #define SPIBAR_DLOCK			0x0c
 #define SPIBAR_FDATA(n)			(0x10 + ((n) & 0xf) * 4)
 #define SPIBAR_FPR_BASE			0x84
-#define SPIBAR_FPR(n)			0x84 + (4 * n))
+#define SPIBAR_FPR(n)			(0x84 + (4 * n))
 #define SPIBAR_PREOP			0xA4
 #define SPIBAR_OPTYPE			0xA6
 #define SPIBAR_OPMENU_LOWER		0xA8
@@ -71,6 +71,7 @@
 #define SPIBAR_HSFSTS_FLOCKDN		(1 << 15)
 #define SPIBAR_HSFSTS_FDV		(1 << 14)
 #define SPIBAR_HSFSTS_FDOPSS		(1 << 13)
+#define SPIBAR_HSFSTS_PRR34_LOCKDN	(1 << 12)
 #define SPIBAR_HSFSTS_WRSDIS		(1 << 11)
 #define SPIBAR_HSFSTS_SAF_CE		(1 << 8)
 #define SPIBAR_HSFSTS_SAF_ACTIVE	(1 << 7)

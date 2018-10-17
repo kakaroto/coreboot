@@ -10,3 +10,71 @@ config FAST_SPI_DISABLE_WRITE_STATUS
 	default y
 	help
 	  Disable the write status SPI opcode in Intel Fast SPI block.
+
+config FAST_SPI_LOCK_REGISTERS
+	bool "Lock SPI registers"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default y
+	help
+	  Lock the SPI registers. This will lock most of the SPI registers
+	  so they cannot be modified by the OS.
+
+config FAST_SPI_LOCK_REGISTERS_ON_RESUME
+	bool "Lock SPI registers on resume"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default y
+	help
+	  Lock the SPI registers after resume. This will lock most of the
+	  SPI registers so they cannot be modified by the OS but only
+	  in the suspend/resume path.
+
+config FAST_SPI_LOCK_PRR34_REGISTERS
+	bool "Lock SPI PRR 3 and PRR4 registers"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default y
+	help
+	  Lock the PRR3 and PRR4 SPI registers. This will lock the registers
+	  responsible for the Protected Ranges 3 and 4.
+
+config FAST_SPI_LOCK_PRR34_REGISTERS_ON_RESUME
+	bool "Lock SPI PRR 3 and PRR4 registers on resume"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default y
+	help
+	  Lock the PRR4 and PRR4 SPI registers after resume.This will lock the
+	  registers responsible for the Protected Ranges 3 and 4.
+
+config FAST_SPI_PRR3_REGISTER
+	hex "PRR3 Register value"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default 0x00
+	help
+	  The value of the FPR3 Register (Flash Protected Range 3) to set.
+	  Bit 31 : Write Protection Enable. When set, indicates that this PRR
+	           is valid and to write protect this range.
+	  Bits 30:16 : Proctected Range Limit. The upper limit of the range
+	               where the bits correspond to bits 26:12 of the address
+	               and bits 11:0 are assumed to be 0xFFF
+	  Bit 15 : Read Protection Enable. When set, indicates that this PRR
+	           is valid and to protect this range against reads.
+	  Bits 14:0 : Proctected Range Base. The lower limit of the range where
+	              the bits correspond to bits 26:12 of the address and bits
+	              11:0 are assumed to be 0x000
+
+config FAST_SPI_PRR4_REGISTER
+	hex "PRR4 Register value"
+	depends on SOC_INTEL_COMMON_BLOCK_FAST_SPI
+	default 0x00
+	help
+	  The value of the FPR4 Register (Flash Protected Range 4) to set.
+	  Bit 31 : Write Protection Enable. When set, indicates that this PRR
+	           is valid and to write protect this range.
+	  Bits 30:16 : Proctected Range Limit. The upper limit of the range
+	               where the bits correspond to bits 26:12 of the address
+	               and bits 11:0 are assumed to be 0xFFF
+	  Bit 15 : Read Protection Enable. When set, indicates that this PRR
+	           is valid and to protect this range against reads.
+	  Bits 14:0 : Proctected Range Base. The lower limit of the range where
+	              the bits correspond to bits 26:12 of the address and bits
+	              11:0 are assumed to be 0x000
+

@@ -51,6 +51,9 @@ static void fast_spi_lockdown_cfg(void)
 	/* Set FAST_SPI opcode menu */
 	fast_spi_set_opcode_menu();
 
+	/* Set PRR3 and PRR4 */
+	fast_spi_set_prr34();
+
 	/* Lock FAST_SPIBAR */
 	fast_spi_lock_bar();
 
